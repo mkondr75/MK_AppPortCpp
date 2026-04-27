@@ -1,0 +1,17 @@
+.env
+# vscode portable runtime (НЕ коммитим)
+.vscode/user-data/
+.vscode/extensions/
+.vscode/last-run-log.txt
+.vscode/profile/
+
+obj/
+lib/
+bin/
+temp/
+# logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
