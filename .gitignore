@@ -9,6 +9,7 @@ obj/
 lib/
 bin/
 temp/
+build/
 # logs
 *.log
 

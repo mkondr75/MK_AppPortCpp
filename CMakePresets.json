@@ -1,0 +1,31 @@
+{
+  "version": 8,
+  "configurePresets": [
+    {
+      "name": "base-ucrt64",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe"
+      }
+    },
+    {
+      "name": "ucrt64-debug",
+      "displayName": "GCC 15.2 (Debug)",
+      "inherits": "base-ucrt64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "ucrt64-release",
+      "displayName": "GCC 15.2 (Release)",
+      "inherits": "base-ucrt64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ]
+}
