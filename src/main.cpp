@@ -242,6 +242,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	////////////////////////
 	First_slide(hInstance);
 	///////////////////////
+	/**/
 	// ---- start server ----
 	StartNode(cfg);
 	// даём Node стартануть
@@ -290,6 +291,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
+	/**/
 	return 0;
 }

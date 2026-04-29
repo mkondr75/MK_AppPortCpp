@@ -1,4 +1,4 @@
-#include "node_question.hpp"
+#include "../include/node_question.hpp"
 
 #include <commdlg.h>
 // #include <uxtheme.h>
@@ -37,9 +37,8 @@ static void BrowseForNode(HWND hwnd)
     ofn.lpstrFilter = L"Executable Files (*.exe)\0*.exe\0";
     ofn.lpstrFile = file_name;
     ofn.nMaxFile = MAX_PATH;
-    ofn.Flags =
-        OFN_FILEMUSTEXIST |
-        OFN_PATHMUSTEXIST;
+    ofn.Flags = OFN_FILEMUSTEXIST |
+                OFN_PATHMUSTEXIST;
 
     if (!GetOpenFileNameW(&ofn))
         return;
@@ -274,17 +273,12 @@ bool ShowNodeQuestion(HINSTANCE hInstance, NodeQuestion &model)
         return false;
 
     ShowWindow(hwnd, SW_SHOW);
-    // SendMessageW(control, WM_SETFONT, (WPARAM)font, TRUE);
     UpdateWindow(hwnd);
-
     MSG msg;
-
     while (GetMessageW(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
-
         DispatchMessageW(&msg);
     }
-
     return model.accepted;
 }

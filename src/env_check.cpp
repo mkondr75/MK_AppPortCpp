@@ -1,11 +1,11 @@
-#include "env_check.hpp"
+#include "../include/env_check.hpp"
 
-#include <filesystem>
-#include <iostream>
-#include <sstream>
+// #include <filesystem>
+// #include <iostream>
+// #include <sstream>
 
 #include <cstdio>
-
+#include <cwchar>
 #include <wrl/client.h>
 #include <WebView2.h>
 
@@ -14,7 +14,7 @@
 extern void LogLauncherInfo(const wchar_t *msg);
 extern void LogLauncherError(const wchar_t *msg);
 
-namespace fs = std::filesystem;
+// namespace fs = std::filesystem;
 
 static std::wstring Utf8ToWide(const std::string &str)
 {
@@ -42,53 +42,53 @@ static std::wstring Utf8ToWide(const std::string &str)
     return result;
 }
 
-bool ProbeNodeVersion(ProbeStatus &out_result)
-{
-    FILE *pipe = _popen("node.exe --version 2>&1", "r");
+// bool ProbeNodeVersion(ProbeStatus &out_result)
+// {
+//     FILE *pipe = _popen("node.exe --version 2>&1", "r");
 
-    if (!pipe)
-    {
-        out_result.ok = false;
-        out_result.diagnostic_message = L"_popen failed";
+//     if (!pipe)
+//     {
+//         out_result.ok = false;
+//         out_result.diagnostic_message = L"_popen failed";
 
-        return false;
-    }
+//         return false;
+//     }
 
-    char buffer[256];
+//     char buffer[256];
 
-    std::string output;
+//     std::string output;
 
-    while (fgets(buffer, sizeof(buffer), pipe))
-    {
-        output += buffer;
-    }
+//     while (fgets(buffer, sizeof(buffer), pipe))
+//     {
+//         output += buffer;
+//     }
 
-    int rc = _pclose(pipe);
+//     int rc = _pclose(pipe);
 
-    std::wstring woutput = Utf8ToWide(output);
+//     std::wstring woutput = Utf8ToWide(output);
 
-    while (!woutput.empty() &&
-           (woutput.back() == L'\n' ||
-            woutput.back() == L'\r'))
-    {
-        woutput.pop_back();
-    }
+//     while (!woutput.empty() &&
+//            (woutput.back() == L'\n' ||
+//             woutput.back() == L'\r'))
+//     {
+//         woutput.pop_back();
+//     }
 
-    if (rc == 0)
-    {
-        out_result.ok = true;
-        out_result.detected_value = woutput;
-        out_result.diagnostic_message = L"node executable works";
+//     if (rc == 0)
+//     {
+//         out_result.ok = true;
+//         out_result.detected_value = woutput;
+//         out_result.diagnostic_message = L"node executable works";
 
-        return true;
-    }
+//         return true;
+//     }
 
-    out_result.ok = false;
-    out_result.detected_value = woutput;
-    out_result.diagnostic_message = L"node launch failed";
+//     out_result.ok = false;
+//     out_result.detected_value = woutput;
+//     out_result.diagnostic_message = L"node launch failed";
 
-    return false;
-}
+//     return false;
+// }
 
 bool ProbeNodeVersionCreateProcess(ProbeStatus &out_result)
 {
@@ -148,8 +148,15 @@ bool ProbeNodeVersionCreateProcess(ProbeStatus &out_result)
         out_result.diagnostic_message =
             L"CreateProcessW failed";
 
+        wchar_t errbuf[64];
+
+        swprintf_s(
+            errbuf,
+            L"GetLastError=%lu",
+            err);
+
         out_result.detected_value =
-            L"GetLastError=" + std::to_wstring(err);
+            errbuf;
 
         CloseHandle(read_pipe);
 
@@ -228,9 +235,7 @@ bool ProbeWebView2Version(ProbeStatus &out_result)
 
     LPWSTR version = nullptr;
 
-    hr = GetAvailableCoreWebView2BrowserVersionString(
-        nullptr,
-        &version);
+    // hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version);
 
     if (SUCCEEDED(hr) && version)
     {
@@ -300,10 +305,18 @@ bool ProbeRequiredDlls(
 
         item.dll_name = dll;
 
-        fs::path full_path =
-            fs::path(dir) / dll;
+        // fs::path full_path =
+        //     fs::path(dir) / dll;
 
-        item.exists = fs::exists(full_path);
+        // item.exists = fs::exists(full_path);
+
+        std::wstring full_path = dir + L"\\" + dll;
+
+        DWORD attrs = GetFileAttributesW(full_path.c_str());
+
+        item.exists =
+            (attrs != INVALID_FILE_ATTRIBUTES) &&
+            !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 
         if (!item.exists)
             all_ok = false;
@@ -314,14 +327,31 @@ bool ProbeRequiredDlls(
     return all_ok;
 }
 
+// void RunEnvironmentProbe(ProbeResult &result)
+// {
+//     ProbeNodeVersion(result.node);
+//     ProbeNodeVersionCreateProcess(result.node);
+
+//     ProbeWebView2Version(result.webview2);
+
+//     ProbeDiskSpace(L".", result.disk);
+
+//     ProbeRequiredDlls(
+//         L".",
+//         result.dlls);
+// }
+
 void RunEnvironmentProbe(ProbeResult &result)
 {
-    ProbeNodeVersion(result.node);
-    ProbeNodeVersionCreateProcess(result.node);
+    ProbeNodeVersionCreateProcess(
+        result.node);
 
-    ProbeWebView2Version(result.webview2);
+    ProbeWebView2Version(
+        result.webview2);
 
-    ProbeDiskSpace(L".", result.disk);
+    ProbeDiskSpace(
+        L".",
+        result.disk);
 
     ProbeRequiredDlls(
         L".",

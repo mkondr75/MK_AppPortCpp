@@ -1,0 +1,15 @@
+      1 commdlg.h
+      6 cstdio
+      2 cwchar
+      1 guiddef.h
+      1 psapi.h
+      1 shellapi.h
+      1 stdio.h
+      7 string
+      1 tlhelp32.h
+      1 vector
+      1 WebView2.h
+      8 windows.h
+      2 winsock2.h
+      1 wrl/client.h
+      2 ws2tcpip.h

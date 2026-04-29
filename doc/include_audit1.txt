@@ -1,0 +1,19 @@
+      1 commdlg.h
+      4 cstdio
+      1 cwchar
+      3 filesystem
+      2 fstream
+      1 guiddef.h
+      1 iostream -1 
+      1 psapi.h
+      1 shellapi.h
+      3 sstream  -1 -1 -1
+      1 stdio.h
+      7 string
+      1 tlhelp32.h
+      1 vector
+      1 WebView2.h
+      8 windows.h
+      2 winsock2.h
+      1 wrl/client.h
+      2 ws2tcpip.h

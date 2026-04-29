@@ -19,6 +19,7 @@ if ($Parent) {
         ProcessCount = $Ids.Count
         TotalRAM_MB = [Math]::Round($Total.Sum / 1MB, 2)
     }
+	(Get-Process AppGui).PrivateMemorySize64 / 1MB
 } else {
     Write-Host "AppGui не запущен"
 }

@@ -1,12 +1,9 @@
 // C:\msys64\home\maxko\dev\AppPortCpp\src\save_config.cpp
 #include "../include/save_config.hpp"
+#include <cstdio>
 
-// bool SaveConfigJson(const Config &cfg){}
-// #include "save_config.hpp"
-
-#include <fstream>
-#include <sstream>
-#include <filesystem>
+// #include <fstream>
+// #include <filesystem>
 
 static const wchar_t *LogModeToString(LogMode mode)
 {
@@ -22,6 +19,84 @@ static const wchar_t *LogModeToString(LogMode mode)
     return L"UNKNOWN";
 }
 
+bool SaveConfigJson(const Config &cfg)
+{
+    HANDLE file = CreateFileW(
+        cfg.paths.config_file.c_str(),
+        GENERIC_WRITE,
+        0,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+
+    if (file == INVALID_HANDLE_VALUE)
+        return false;
+
+    wchar_t json[8192];
+
+    int len = swprintf_s(
+        json,
+        L"{\n"
+        L"  \"paths\": {\n"
+        L"    \"root_dir\": \"%ls\",\n"
+        L"    \"bin_dir\": \"%ls\",\n"
+        L"    \"logs_dir\": \"%ls\",\n"
+        L"    \"config_file\": \"%ls\",\n"
+        L"    \"node\": \"%ls\"\n"
+        L"  },\n"
+        L"  \"logs\": {\n"
+        L"    \"launcher\": \"%ls\",\n"
+        L"    \"node\": \"%ls\",\n"
+        L"    \"webview\": \"%ls\"\n"
+        L"  },\n"
+        L"  \"node\": {\n"
+        L"    \"exe\": \"%ls\",\n"
+        L"    \"working_dir\": \"%ls\",\n"
+        L"    \"entry_script\": \"%ls\",\n"
+        L"    \"args\": \"%ls\"\n"
+        L"  },\n"
+        L"  \"edge\": {\n"
+        L"    \"use_system_webview2\": %ls,\n"
+        L"    \"user_data_dir\": \"%ls\"\n"
+        L"  }\n"
+        L"}\n",
+        cfg.paths.root_dir.c_str(),
+        cfg.paths.bin_dir.c_str(),
+        cfg.paths.logs_dir.c_str(),
+        cfg.paths.config_file.c_str(),
+        cfg.paths.node.c_str(),
+        LogModeToString(cfg.logs.launcher),
+        LogModeToString(cfg.logs.node),
+        LogModeToString(cfg.logs.webview),
+        cfg.node.exe.c_str(),
+        cfg.node.working_dir.c_str(),
+        cfg.node.entry_script.c_str(),
+        cfg.node.args.c_str(),
+        cfg.edge.use_system_webview2 ? L"true" : L"false",
+        cfg.edge.user_data_dir.c_str());
+
+    if (len <= 0)
+    {
+        CloseHandle(file);
+        return false;
+    }
+
+    DWORD written = 0;
+
+    BOOL ok = WriteFile(
+        file,
+        json,
+        len * sizeof(wchar_t),
+        &written,
+        NULL);
+
+    CloseHandle(file);
+
+    return ok == TRUE;
+}
+
+/*
 bool SaveConfigJson(const Config &cfg)
 {
     std::wstringstream json;
@@ -53,10 +128,8 @@ bool SaveConfigJson(const Config &cfg)
     std::wofstream file(std::filesystem::path(cfg.paths.config_file), std::ios::trunc);
     if (!file.is_open())
         return false;
-
     file << json.str();
-
     file.close();
-
     return true;
 }
+*/
