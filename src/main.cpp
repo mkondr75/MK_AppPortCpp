@@ -160,6 +160,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
+/// GUI setup
+void First_slide(HINSTANCE hInstance)
+{
+	NodeQuestion q;
+	q.system_variant_available = true;
+	q.system_node_path = L"c:\\program files\\nodejs\\node.exe";
+	q.system_node_version = L"v24.13.1";
+	q.custom_node_path = L"c:\\custom\\node.exe";
+
+	if (ShowNodeQuestion(hInstance, q))
+	{
+		if (q.use_system_variant)
+		{
+			LogLauncherInfo(q.system_node_path.c_str());
+		}
+		else
+		{
+			LogLauncherInfo(q.custom_node_path.c_str());
+		}
+	}
+	else
+	{
+		LogLauncherError(L"user cancelled node selection");
+	}
+}
+
 // -------------------- main --------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
@@ -177,21 +203,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	////////////////////////////
 	// ParseFlags();
 	int argc = 0;
-	LPWSTR *argv = CommandLineToArgvW(
-		GetCommandLineW(),
-		&argc);
+	LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 	// Config
 	cfg = ParseFlags(argc, argv);
-	// std::wcout << L"Root dir: "<< std::endl; - не ЮЗАТЬ std::wcout!!!
-	// wprintf(L"cfg.paths.root_dir=%ls\n", cfg.paths.root_dir.c_str());
 	//	cfg.launcher - отладка
-	// cfg.logs.launcher = LogMode::FILE_MODE;
+	cfg.logs.launcher = LogMode::FILE_MODE;
 	// cfg.logs.launcher = LogMode::CONS;
-	cfg.logs.launcher = LogMode::OFF; // defolt
+	// cfg.logs.launcher = LogMode::OFF; // defolt
 	//	cfg.node - отладка
-	// cfg.logs.node = LogMode::FILE_MODE;
+	cfg.logs.node = LogMode::FILE_MODE;
 	// cfg.logs.node = LogMode::CONS;
-	cfg.logs.node = LogMode::OFF; // defolt
+	// cfg.logs.node = LogMode::OFF; // defolt
 	if (cfg.logs.launcher == LogMode::CONS)
 	{
 		AllocConsole();
@@ -202,10 +224,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	LogLauncherInfo(L"launcher started");
 	// wprintf(L"This writed to logfile=%ls\n", cfg.paths.root_dir.c_str());
 	//////////////////Loging test for launcher
-	LogLauncherInfo(L"launcher started");
 	LogLauncherError(L"test launcher error");
 	///////////////////
+	//////////test run
+	// Config cfg_tst;
+	ProbeResult probe{};
+	RunEnvironmentProbe(probe);
+	PrintProbeResult(probe);
+	Config cfg_tst;
+	FillDefaultConfig(cfg_tst);
+	SaveConfigJson(cfg_tst);
 
+	Config cfg_tst2;
+	cfg_tst2.paths.config_file = cfg_tst.paths.config_file;
+	LoadConfigJson(cfg_tst2);
+	// if(cfg_tst == cfg_tst2){} - not work
+	////////////////////////
+	First_slide(hInstance);
+	///////////////////////
 	// ---- start server ----
 	StartNode(cfg);
 	// даём Node стартануть

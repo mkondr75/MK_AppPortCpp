@@ -15,10 +15,16 @@ set(SOURCES
     src/wk_flags.cpp
     src/logsystem.cpp
     src/node_rt.cpp
+    src/env_check.cpp
+    src/init_config.cpp
+    src/save_config.cpp
+    src/load_config.cpp
+    src/node_question.cpp
 )
 
 # 2. Создание EXE (WIN32 убирает консоль, аналог -mwindows)
-add_executable(AppGui WIN32 ${SOURCES})
+add_executable(AppGui WIN32 ${SOURCES}
+    src/node_question.cpp)
 
 # 3. Настройки компиляции
 target_compile_definitions(AppGui PRIVATE UNICODE _UNICODE)
@@ -46,6 +52,7 @@ target_link_libraries(AppGui PRIVATE
     user32
     gdi32
     ws2_32
+#    uxtheme
 )
 
 # 6. Копирование WebView2Loader.dll в папку с .exe после сборки

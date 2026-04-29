@@ -1,40 +1,40 @@
 {
-  "files.eol": "\n",
-  "files.autoSave": "onFocusChange",
-  // "git.path": "C:\\msys64\\usr\\bin\\git.exe",
-  "workbench.localHistory.enabled": true,
-  "editor.formatOnSave": true,
-  "editor.tabSize": 2,
-  "editor.detectIndentation": false,
-  /* Переключаем на MSYS2 UCRT64 для совместимости с твоим окружением */
-  "terminal.integrated.profiles.windows": {
-    "MSYS2 UCRT64": {
-      "path": "C:\\msys64\\usr\\bin\\bash.exe",
-      "args": [
-        "--login",
-        "-i"
-      ],
-      "env": {
-        "MSYSTEM": "UCRT64",
-        "CHERE_INVOKING": "1"
-      }
+    "files.eol": "\n",
+    "files.autoSave": "onFocusChange",
+    // "git.path": "C:\\msys64\\usr\\bin\\git.exe",
+    "workbench.localHistory.enabled": true,
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.detectIndentation": true,
+    /* Переключаем на MSYS2 UCRT64 для совместимости с твоим окружением */
+    "terminal.integrated.profiles.windows": {
+        "MSYS2 UCRT64": {
+            "path": "C:\\msys64\\usr\\bin\\bash.exe",
+            "args": [
+                "--login",
+                "-i"
+            ],
+            "env": {
+                "MSYSTEM": "UCRT64",
+                "CHERE_INVOKING": "1"
+            }
+        },
+        "Command Prompt": {
+            "path": "C:\\WINDOWS\\system32\\cmd.exe",
+            "env": {
+                "MSYSTEM": "WINDOWS",
+                "CHERE_INVOKING": "1"
+            }
+        },
     },
-    "Command Prompt": {
-      "path": "C:\\WINDOWS\\system32\\cmd.exe",
-      "env": {
-        "MSYSTEM": "WINDOWS",
-        "CHERE_INVOKING": "1"
-      }
-    },
-  },
-  "terminal.integrated.shellIntegration.enabled": true,
-  "terminal.integrated.shellIntegration.decorationsEnabled": "never",
-  // "terminal.integrated.decorations.enabled": "never",
-  // "terminal.integrated.enableCommandTracking": false,
-  "terminal.integrated.defaultLocation": "view",
-  //"terminal.integrated.env.windows": {},
-  "terminal.integrated.defaultProfile.windows": "PowerShell", //Command Prompt
-  "terminal.integrated.cwd": "${workspaceFolder}",
-  "git.autofetch": true,
-  "security.workspace.trust.enabled": false
+    "terminal.integrated.shellIntegration.enabled": true,
+    "terminal.integrated.shellIntegration.decorationsEnabled": "never",
+    // "terminal.integrated.decorations.enabled": "never",
+    // "terminal.integrated.enableCommandTracking": false,
+    "terminal.integrated.defaultLocation": "view",
+    //"terminal.integrated.env.windows": {},
+    "terminal.integrated.defaultProfile.windows": "PowerShell", //Command Prompt
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "git.autofetch": true,
+    "security.workspace.trust.enabled": false
 }

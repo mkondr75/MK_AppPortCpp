@@ -1,4 +1,4 @@
-$LauncherName = "trilium" # Имя вашего .exe без расширения
+$LauncherName = "AppGui" # Имя вашего .exe без расширения
 $Parent = Get-Process $LauncherName -ErrorAction SilentlyContinue
 
 if ($Parent) {
@@ -20,5 +20,5 @@ if ($Parent) {
         TotalRAM_MB = [Math]::Round($Total.Sum / 1MB, 2)
     }
 } else {
-    Write-Host "trilium не запущен"
+    Write-Host "AppGui не запущен"
 }

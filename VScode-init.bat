@@ -1,6 +1,6 @@
 ::# Постоянный лаунчер изолированного окружения
 @echo off
-::setlocal
+setlocal
 
 REM очистить всё кроме нужного
 for /f "tokens=1 delims==" %%A in ('set') do (
@@ -74,9 +74,9 @@ set
 if "%BASE:~-1%"=="\" set "BASE=%BASE:~0,-1%"
 ::echo "BASE=%BASE%"
 @echo on
-::start /b "" "%CODE_EXE%" --user-data-dir "%WIN_DATA%" --extensions-dir "%WIN_EXT%" --new-window "%BASE%" > .vscode\last-run-log.txt 2>&1
-"%CODE_EXE%" --user-data-dir "%WIN_DATA%" --extensions-dir "%WIN_EXT%" --new-window "%BASE%" > .vscode\last-run-log.txt 2>&1
-
+start /b "" "%CODE_EXE%" --user-data-dir "%WIN_DATA%" --extensions-dir "%WIN_EXT%" --new-window "%BASE%" > .vscode\last-run-log.txt 2>&1
+::"%CODE_EXE%" --user-data-dir "%WIN_DATA%" --extensions-dir "%WIN_EXT%" --new-window "%BASE%" > .vscode\last-run-log.txt 2>&1
+endlocal
 
 ::disown
 ::echo "VS Code запущен. Консоль свободна для команд."
