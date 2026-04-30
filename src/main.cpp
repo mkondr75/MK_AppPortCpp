@@ -1,3 +1,6 @@
+/// \file main.cpp
+/// \brief место входа в проэкт .
+/// \see main.hpp
 #include "../include/main.hpp"
 #include <commctrl.h>
 #include <dwmapi.h>
@@ -75,7 +78,11 @@ public:
 	}
 	virtual ~EnvHandler() = default;
 };
-// memory trim
+
+/// \brief Выгружает все возможные страницы процесса в файл подкачки (Standby/Free list).
+/// 	TrimMemory(nodeProcess.hProcess);TrimMemory(GetCurrentProcess());
+/// \param hProcess - хандл процесса.
+/// \return воид.
 void TrimMemory(HANDLE hProcess)
 {
 	// Выгружает все возможные страницы процесса в файл подкачки (Standby/Free list)
@@ -83,6 +90,10 @@ void TrimMemory(HANDLE hProcess)
 	EmptyWorkingSet(hProcess);
 }
 
+/// \brief Рекурсивно для вложенных процессов освобождает память
+///  Применение к Node и самому себе TrimTree(nodeProcess.hProcess); TrimTree(GetCurrentProcessId());
+/// \param parentId -  ID родителя дерева.
+/// \return воид.
 void TrimTree(DWORD parentId)
 {
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -191,9 +202,7 @@ void First_slide(HINSTANCE hInstance)
 // -------------------- main --------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-
 	const wchar_t CLASS_NAME[] = L"AppGui";
-
 	WNDCLASSW wc = {};
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = hInstance;
@@ -204,11 +213,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	icex.dwICC = ICC_STANDARD_CLASSES;
 	InitCommonControlsEx(&icex);
 	////////////////////////////////
-	////////////////////////////
-	// AllocConsole();
-	// freopen("CONOUT$", "w", stdout);
-	// freopen("CONOUT$", "w", stderr);
-	////////////////////////////
 	// ParseFlags();
 	int argc = 0;
 	LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -250,12 +254,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	////////////////////////
 	First_slide(hInstance);
 	///////////////////////
+
 	/**/
 	// ---- start server ----
 	StartNode(cfg);
 	// даём Node стартануть
 	Sleep(1000); // ← обязательно
-
 	if (!WaitForPort(9090, 15000))
 	{
 		MessageBoxW(NULL, L"Server did not start", L"Error", MB_OK);
@@ -265,11 +269,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	// edge creator
 	RegisterClassW(&wc);
 	SetEnvironmentVariableW(L"WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", L"--disable-features=LayoutNGPrinting,Printing --js-flags=\"--max-semi-space-size=8\"");
-	hwnd = CreateWindowExW(
-		0, CLASS_NAME, L"AppGui",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 1200, 800,
-		NULL, NULL, hInstance, NULL);
+	hwnd = CreateWindowExW(0, CLASS_NAME, L"AppGui", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1200, 800, NULL, NULL, hInstance, NULL);
 	Sleep(1000); // ← обязательно
 
 	// Применение к Node и самому себе
@@ -277,7 +277,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	TrimTree(nodeProcess.dwProcessId);
 	TrimMemory(GetCurrentProcess());
 	TrimTree(GetCurrentProcessId());
-	//
+
 	// ДВМапи
 	BOOL useDarkMode = TRUE;
 	DwmSetWindowAttribute(hwnd, 20, &useDarkMode, sizeof(useDarkMode));
@@ -293,10 +293,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	wprintf(L"SystemRoot=%ls\n", sysroot);
 
 	// ---- WebView2 ----
-	CreateCoreWebView2EnvironmentWithOptions(
-		NULL, NULL, NULL,
-		new EnvHandler());
-
+	CreateCoreWebView2EnvironmentWithOptions(NULL, NULL, NULL, new EnvHandler());
 	// ---- loop ----
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
