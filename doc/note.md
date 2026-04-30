@@ -417,3 +417,32 @@ for f in ./src/*.cpp; do
     echo "=== $f ==="
     g++ -MM "$f"
 done
+
+С подключеным флагом смаке     dwmapi
+40-60кб рама за чёрный верх окна
+
+альтернатива двмапи без флагов в смаке
+// Определяем сигнатуру функции
+typedef HRESULT(WINAPI* PFN_DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD);
+
+// ... внутри WndProc ...
+
+HWND hwnd = CreateWindowExW( /* ... */ );
+
+if (!hwnd)
+    return false;
+
+// --- ПОЗДНЕЕ СВЯЗЫВАНИЕ DWMAPI ---
+HMODULE hDwmApi = LoadLibraryW(L"dwmapi.dll");
+if (hDwmApi) {
+    PFN_DwmSetWindowAttribute pDwmSetWindowAttribute = 
+        (PFN_DwmSetWindowAttribute)GetProcAddress(hDwmApi, "DwmSetWindowAttribute");
+        
+    if (pDwmSetWindowAttribute) {
+        BOOL useDarkMode = TRUE;
+        pDwmSetWindowAttribute(hwnd, 20, &useDarkMode, sizeof(useDarkMode));
+    }
+    FreeLibrary(hDwmApi);
+}
+// ---------------------------------
+ShowWindow(hwnd, SW_SHOW);

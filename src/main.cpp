@@ -1,4 +1,6 @@
 #include "../include/main.hpp"
+#include <commctrl.h>
+#include <dwmapi.h>
 
 // #pragma comment(lib, "ws2_32.lib")
 
@@ -196,6 +198,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
+	////////////////////////////////
+	INITCOMMONCONTROLSEX icex;
+	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+	icex.dwICC = ICC_STANDARD_CLASSES;
+	InitCommonControlsEx(&icex);
+	////////////////////////////////
 	////////////////////////////
 	// AllocConsole();
 	// freopen("CONOUT$", "w", stdout);
@@ -269,6 +277,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	TrimTree(nodeProcess.dwProcessId);
 	TrimMemory(GetCurrentProcess());
 	TrimTree(GetCurrentProcessId());
+	//
+	// ДВМапи
+	BOOL useDarkMode = TRUE;
+	DwmSetWindowAttribute(hwnd, 20, &useDarkMode, sizeof(useDarkMode));
+
 	// Для WebView2 нужно перечислить все дочерние процессы через EnumProcesses или CreateToolhelp32Snapshot
 	ShowWindow(hwnd, nCmdShow);
 

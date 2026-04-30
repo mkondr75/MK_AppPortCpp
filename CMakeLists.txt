@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 1. Исходники
 set(SOURCES
     src/main.cpp
+    src/app.rc
     src/wk_flags.cpp
     src/logsystem.cpp
     src/node_rt.cpp
@@ -47,6 +48,8 @@ target_include_directories(AppGui PRIVATE
 # Указываем полный путь к DLL, как в твоем батнике
 target_link_libraries(AppGui PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/WebView2Loader.dll"
+    comctl32
+    dwmapi
     ole32
     uuid
     user32

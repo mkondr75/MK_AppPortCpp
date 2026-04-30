@@ -1,6 +1,8 @@
 #include "../include/node_question.hpp"
 
 #include <commdlg.h>
+#include <dwmapi.h>
+// #include <commctrl.h>
 // #include <uxtheme.h>
 
 #define IDC_RADIO_SYSTEM 1001
@@ -17,11 +19,10 @@ static HWND g_radio_system = NULL;
 static HWND g_radio_custom = NULL;
 static HWND g_edit_path = NULL;
 
-static HFONT g_font = NULL;
-static void ApplyFont(HWND hwnd)
-{
-    SendMessageW(hwnd, WM_SETFONT, (WPARAM)g_font, TRUE);
-}
+// static HFONT g_font = NULL;
+// static void ApplyFont(HWND hwnd, HFONT g_font)
+// static void ApplyFont(HWND hwnd)
+// {    SendMessageW(hwnd, WM_SETFONT, (WPARAM)g_font, TRUE);}
 static void UpdateControls()
 {
     BOOL use_system = SendMessageW(g_radio_system, BM_GETCHECK, 0, 0) == BST_CHECKED;
@@ -50,13 +51,27 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 {
     switch (msg)
     {
+    case WM_CTLCOLORSTATIC:
+    {
+        HDC hdcStatic = (HDC)wParam;
+
+        // Делаем фон текста прозрачным, чтобы он не перекрывал заливку кистью
+        SetBkMode(hdcStatic, TRANSPARENT);
+
+        // Возвращаем кисть, цвет которой совпадает с фоном твоего окна (белый)
+        return (INT_PTR)GetSysColorBrush(COLOR_WINDOW);
+    }
     case WM_CREATE:
     {
         // bool themed = IsThemeActive();
         // wchar_t dbg[128];
         // swprintf_s(dbg, L"themes=%d", themed); // #include <uxtheme.h> + в смаке флаг uxtheme в target_link_libraries
 
-        g_font = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+        // g_font = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+        NONCLIENTMETRICSW ncm{};
+        ncm.cbSize = sizeof(NONCLIENTMETRICSW);
+        SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICSW), &ncm, 0);
+        HFONT g_font = CreateFontIndirectW(&ncm.lfMessageFont);
         CreateWindowW(
             L"STATIC",
             L"Определите Node.js",
@@ -90,7 +105,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
                 (HMENU)IDC_RADIO_SYSTEM,
                 NULL,
                 NULL);
-        ApplyFont(g_edit_path);
+        // ApplyFont(g_edit_path);
+        SendMessageW(g_radio_system, WM_SETFONT, (WPARAM)g_font, TRUE);
         g_radio_custom =
             CreateWindowW(
                 L"BUTTON",
@@ -106,7 +122,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
                 (HMENU)IDC_RADIO_CUSTOM,
                 NULL,
                 NULL);
-        ApplyFont(g_radio_custom);
+        // ApplyFont(g_radio_custom);
+        SendMessageW(g_radio_custom, WM_SETFONT, (WPARAM)g_font, TRUE);
         g_edit_path =
             CreateWindowW(
                 L"EDIT",
@@ -123,8 +140,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
                 (HMENU)IDC_EDIT_PATH,
                 NULL,
                 NULL);
-        ApplyFont(g_edit_path);
-
+        // ApplyFont(g_edit_path);
+        SendMessageW(g_edit_path, WM_SETFONT, (WPARAM)g_font, TRUE);
         CreateWindowW(
             L"BUTTON",
             L"...",
@@ -250,6 +267,12 @@ bool ShowNodeQuestion(HINSTANCE hInstance, NodeQuestion &model)
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    /////
+    // INITCOMMONCONTROLSEX icex;
+    // icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+    // icex.dwICC = ICC_STANDARD_CLASSES;
+    // InitCommonControlsEx(&icex);
+    /////
 
     RegisterClassW(&wc);
     HWND hwnd =
@@ -271,7 +294,10 @@ bool ShowNodeQuestion(HINSTANCE hInstance, NodeQuestion &model)
 
     if (!hwnd)
         return false;
-
+    // ДВМапи
+    BOOL useDarkMode = TRUE;
+    DwmSetWindowAttribute(hwnd, 20, &useDarkMode, sizeof(useDarkMode));
+    //
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
     MSG msg;
