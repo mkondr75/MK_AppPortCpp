@@ -36,5 +36,40 @@
     "terminal.integrated.defaultProfile.windows": "PowerShell", //Command Prompt
     "terminal.integrated.cwd": "${workspaceFolder}",
     "git.autofetch": true,
+    // Отключаем встроенный движок Microsoft, чтобы не было "двоеглавия"
+    "C_Cpp.intelliSenseEngine": "disabled", //disable microsoft intelysenst
+    "C_Cpp.enhancedColorization": "disabled", //disable microsoft intelysenst
+    "C_Cpp.errorSquiggles": "disabled",
+    // Помогаем VS Code понять, что clangd главный
+    "clangd.restartAfterCrash": true,
+    "clangd.serverCompletionRanking": true,
+    "clangd.detectExtensionConflicts": true,
+    // "clangd.arguments": [
+    //     "--compile-commands-dir=build/analysis",
+    //     "--completion-style=detailed",
+    //     "--header-insertion=never",
+    //     "--j=4",
+    //     // "--header-filter=(src|include)/.*",
+    //     "--clang-tidy",
+    //     "--clang-tidy-checks=-misc-unused-using-decls",
+    //     "--background-index",
+    //     "--log=verbose"
+    // ],
+    "clangd.arguments": [
+        "--compile-commands-dir=build/analysis",
+        "--background-index",
+        "--log=verbose",
+        "-j=4"
+    ],
+    "clangd.path": "C:\\msys64\\ucrt64\\bin\\clangd.exe",
     "security.workspace.trust.enabled": false
 }
+// "--compile-commands-dir=build/analysis",
+// "--background-index"
+// "--log=verbose",
+// "--completion-style=detailed",
+// "--header-insertion=never",
+// "-j=4",
+// "--header-filter=(src|include)/.*",
+// "--clang-tidy",
+// "--clang-tidy-checks=-misc-unused-using-decls",

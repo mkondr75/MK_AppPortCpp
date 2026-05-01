@@ -448,3 +448,78 @@ if (hDwmApi) {
 ShowWindow(hwnd, SW_SHOW);
 
 
+Попытка анализа стринг
+maxko@MAX_NOTE UCRT64 ~/dev/AppPortCpp
+$ grep -rE "std::[a-z_0-9]+\s*\(|\.[a-z_0-9]+\s*\(" src/ include/ --include=*.{cpp,hpp,h} \
+| grep -vE "include|if\s*\(|while\s*\(|for\s*\("
+src/env_check.cpp:        str.c_str(),
+src/env_check.cpp:        (int)str.size(),
+src/env_check.cpp:        str.c_str(),
+src/env_check.cpp:        (int)str.size(),
+src/env_check.cpp://            (woutput.back() == L'\n' ||
+src/env_check.cpp://             woutput.back() == L'\r'))
+src/env_check.cpp://         woutput.pop_back();
+src/env_check.cpp:           (woutput.back() == L'\n' ||
+src/env_check.cpp:            woutput.back() == L'\r'))
+src/env_check.cpp:        woutput.pop_back();
+src/env_check.cpp:        path.c_str(),
+src/env_check.cpp:        DWORD attrs = GetFileAttributesW(full_path.c_str());
+src/env_check.cpp:        out_result.push_back(item);
+src/env_check.cpp:            std::wstring(result.node.ok ? L"true" : L"false") +
+src/env_check.cpp:            LogLauncherInfo(msg.c_str());
+src/env_check.cpp:            LogLauncherError(msg.c_str());
+src/env_check.cpp:            std::wstring(result.webview2.ok ? L"true" : L"false") +
+src/env_check.cpp:            LogLauncherInfo(msg.c_str());
+src/env_check.cpp:            LogLauncherError(msg.c_str());
+src/env_check.cpp:            std::wstring(dll.exists ? L"true" : L"false");
+src/env_check.cpp:            LogLauncherInfo(msg.c_str());
+src/env_check.cpp:            LogLauncherError(msg.c_str());
+src/load_config.cpp://     buffer << file.rdbuf();
+src/load_config.cpp://     return buffer.str();
+src/load_config.cpp://     buffer << file.rdbuf();
+src/load_config.cpp://     return buffer.str();
+src/load_config.cpp:    HANDLE file = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+src/load_config.cpp:    text.resize((size_t)(size.QuadPart / sizeof(wchar_t)));
+src/load_config.cpp:    BOOL ok = ReadFile(file, text.data(), (DWORD)size.QuadPart, &readed, NULL);
+src/load_config.cpp:    text.resize(readed / sizeof(wchar_t));
+src/load_config.cpp:    size_t key_pos = json.find(pattern);
+src/load_config.cpp:    size_t colon_pos = json.find(L":", key_pos);
+src/load_config.cpp:    size_t first_quote = json.find(L"\"", colon_pos + 1);
+src/load_config.cpp:    size_t second_quote = json.find(L"\"", first_quote + 1);
+src/load_config.cpp:    return json.substr(first_quote + 1, second_quote - first_quote - 1);
+src/load_config.cpp:    size_t key_pos = json.find(pattern);
+src/load_config.cpp:    size_t colon_pos = json.find(L":", key_pos);
+src/load_config.cpp:    size_t true_pos = json.find(L"true", colon_pos);
+src/logsystem.cpp:    return std::wstring(buffer);
+src/logsystem.cpp:    int utf8_size = WideCharToMultiByte(CP_UTF8, 0, text.c_str(), -1, nullptr, 0, nullptr, nullptr);
+src/logsystem.cpp:    utf8.resize(utf8_size - 1);
+src/logsystem.cpp:    WideCharToMultiByte(CP_UTF8, 0, text.c_str(), -1, utf8.data(), utf8_size, nullptr, nullptr);
+src/logsystem.cpp:    BOOL ok = WriteFile(h, utf8.c_str(), (DWORD)utf8.size(), &written, nullptr);
+src/logsystem.cpp:             ts.c_str(),
+src/logsystem.cpp:    wprintf(L"logfile_launcher=%ls\n", cfg.launcher_file.c_str());
+src/logsystem.cpp:            cfg.launcher_file.c_str(),
+src/logsystem.cpp:            wprintf(L"ErroCreating logfile_launcher=%ls\n", cfg.launcher_file.c_str());
+src/logsystem.cpp:            wprintf(L"file was created logfile_launcher=%ls\n", cfg.launcher_file.c_str());
+src/main.cpp:                   LogLauncherInfo(q.system_node_path.c_str());
+src/main.cpp:                   LogLauncherInfo(q.custom_node_path.c_str());
+src/main.cpp:   // wprintf(L"This writed to logfile=%ls\n", cfg.paths.root_dir.c_str());
+src/node_question.cpp:                system_text.c_str(),
+src/node_question.cpp:                g_model->custom_node_path.c_str(),
+src/node_rt.cpp:            cfg.logs.node_file.c_str(),
+src/node_rt.cpp:                    cfg.logs.node_file.c_str());
+src/node_rt.cpp:    // wchar_t cmd[] = L"\"C:\\Program Files\\nodejs\\node.exe\" --permission --allow-fs-read=./* --allow-fs-write=./* --allow-fs-read=C:\\dev_node\\trilium_dev --allow-fs-write=C:\\dev_node\\trilium_dev --allow-child-process --allow-addons -e \"import { fileURLToPath } from 'url';console.log(fileURLToPath(import.meta.url)); console.log(process.env); console.log(process.execArgv);process.stdin.resume(); process.stdin.on('data', ()=>process.exit(0));\"";
+src/save_config.cpp:        cfg.paths.config_file.c_str(),
+src/save_config.cpp:        cfg.paths.root_dir.c_str(),
+src/save_config.cpp:        cfg.paths.bin_dir.c_str(),
+src/save_config.cpp:        cfg.paths.logs_dir.c_str(),
+src/save_config.cpp:        cfg.paths.config_file.c_str(),
+src/save_config.cpp:        cfg.paths.node.c_str(),
+src/save_config.cpp:        cfg.node.exe.c_str(),
+src/save_config.cpp:        cfg.node.working_dir.c_str(),
+src/save_config.cpp:        cfg.node.entry_script.c_str(),
+src/save_config.cpp:        cfg.node.args.c_str(),
+src/save_config.cpp:        cfg.edge.user_data_dir.c_str());
+src/save_config.cpp:    file << json.str();
+src/save_config.cpp:    file.close();
+
+maxko@MAX_NOTE UCRT64 ~/dev/AppPortCpp

@@ -1,0 +1,6 @@
+Diagnostics:
+  ClangTidy:
+    CheckOptions:
+      header-filter: "^(src|include)/.*"
+    Remove:
+      - misc-unused-using-decls
