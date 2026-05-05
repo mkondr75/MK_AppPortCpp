@@ -1,68 +1,80 @@
 {
-    "files.eol": "\n",
-    "files.autoSave": "onFocusChange",
-    // "git.path": "C:\\msys64\\usr\\bin\\git.exe",
-    "workbench.localHistory.enabled": true,
-    "editor.formatOnSave": true,
-    "editor.tabSize": 4,
-    "editor.detectIndentation": true,
-    /* Переключаем на MSYS2 UCRT64 для совместимости с твоим окружением */
-    "terminal.integrated.profiles.windows": {
-        "MSYS2 UCRT64": {
-            "path": "C:\\msys64\\usr\\bin\\bash.exe",
-            "args": [
-                "--login",
-                "-i"
-            ],
-            "env": {
-                "MSYSTEM": "UCRT64",
-                "CHERE_INVOKING": "1"
-            }
-        },
-        "Command Prompt": {
-            "path": "C:\\WINDOWS\\system32\\cmd.exe",
-            "env": {
-                "MSYSTEM": "WINDOWS",
-                "CHERE_INVOKING": "1"
-            }
-        },
-    },
-    "terminal.integrated.shellIntegration.enabled": true,
-    "terminal.integrated.shellIntegration.decorationsEnabled": "never",
-    // "terminal.integrated.decorations.enabled": "never",
-    // "terminal.integrated.enableCommandTracking": false,
-    "terminal.integrated.defaultLocation": "view",
-    //"terminal.integrated.env.windows": {},
-    "terminal.integrated.defaultProfile.windows": "PowerShell", //Command Prompt
-    "terminal.integrated.cwd": "${workspaceFolder}",
-    "git.autofetch": true,
-    // Отключаем встроенный движок Microsoft, чтобы не было "двоеглавия"
-    "C_Cpp.intelliSenseEngine": "disabled", //disable microsoft intelysenst
-    "C_Cpp.enhancedColorization": "disabled", //disable microsoft intelysenst
-    "C_Cpp.errorSquiggles": "disabled",
-    // Помогаем VS Code понять, что clangd главный
-    "clangd.restartAfterCrash": true,
-    "clangd.serverCompletionRanking": true,
-    "clangd.detectExtensionConflicts": true,
-    // "clangd.arguments": [
-    //     "--compile-commands-dir=build/analysis",
-    //     "--completion-style=detailed",
-    //     "--header-insertion=never",
-    //     "--j=4",
-    //     // "--header-filter=(src|include)/.*",
-    //     "--clang-tidy",
-    //     "--clang-tidy-checks=-misc-unused-using-decls",
-    //     "--background-index",
-    //     "--log=verbose"
-    // ],
-    "clangd.arguments": [
-        "--compile-commands-dir=build/analysis",
-        "--background-index",
-        "--log=verbose",
-        "-j=4"
-    ],
-    "clangd.path": "C:\\msys64\\ucrt64\\bin\\clangd.exe",
-    "security.workspace.trust.enabled": false
+	"files.eol": "\n",
+	"files.autoSave": "onFocusChange",
+	// "git.path": "C:\\msys64\\usr\\bin\\git.exe",
+	"workbench.localHistory.enabled": true,
+	"editor.formatOnSave": true,
+	"editor.tabSize": 4,
+	// "editor.detectIndentation": true,
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	/* Переключаем на MSYS2 UCRT64 для совместимости с твоим окружением */
+	"terminal.integrated.profiles.windows": {
+		"MSYS2 UCRT64": {
+			"path": "C:\\msys64\\usr\\bin\\bash.exe",
+			"args": [
+				"--login",
+				"-i"
+			],
+			"env": {
+				"MSYSTEM": "UCRT64",
+				"CHERE_INVOKING": "1"
+			}
+		},
+		"Command Prompt": {
+			"path": "C:\\WINDOWS\\system32\\cmd.exe",
+			"env": {
+				"MSYSTEM": "WINDOWS",
+				"CHERE_INVOKING": "1"
+			}
+		},
+	},
+	"terminal.integrated.shellIntegration.enabled": true,
+	"terminal.integrated.shellIntegration.decorationsEnabled": "never",
+	// "terminal.integrated.decorations.enabled": "never",
+	// "terminal.integrated.enableCommandTracking": false,
+	"terminal.integrated.defaultLocation": "view",
+	//"terminal.integrated.env.windows": {},
+	"terminal.integrated.defaultProfile.windows": "PowerShell", //Command Prompt
+	"terminal.integrated.cwd": "${workspaceFolder}",
+	"git.autofetch": true,
+	// Отключаем встроенный движок Microsoft, чтобы не было "двоеглавия"
+	"C_Cpp.intelliSenseEngine": "disabled", //disable microsoft intelysenst
+	"C_Cpp.enhancedColorization": "disabled", //disable microsoft intelysenst
+	"C_Cpp.errorSquiggles": "disabled",
+	// Помогаем VS Code понять, что clangd главный
+	"clangd.restartAfterCrash": true,
+	"clangd.serverCompletionRanking": true,
+	"clangd.detectExtensionConflicts": true,
+	// "clangd.arguments": [
+	//     "--compile-commands-dir=build/analysis",
+	//     "--completion-style=detailed",
+	//     "--header-insertion=never",
+	//     "--j=4",
+	//     // "--header-filter=(src|include)/.*",
+	//     "--clang-tidy",
+	//     "--clang-tidy-checks=-misc-unused-using-decls",
+	//     "--background-index",
+	//     "--log=verbose"
+	// ],
+	"clangd.arguments": [
+		"--compile-commands-dir=build/analysis",
+		"--query-driver=C:/msys64/ucrt64/bin/g++",
+		"--background-index",
+		"--log=verbose",
+		"-j=4"
+	],
+	"clangd.path": "C:\\msys64\\ucrt64\\bin\\clangd.exe",
+	"[cpp]": {
+		"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+	},
+	"[c]": {
+		"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+	},
+	"security.workspace.trust.enabled": false,
+	"cmake.buildToolArgs": [
+		"-v"
+	]
 }
 // "--compile-commands-dir=build/analysis",
 // "--background-index"

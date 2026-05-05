@@ -5,10 +5,9 @@
 #include "node.hpp"
 #include "edge.hpp"
 
-struct Config
-{
-    RuntimePaths paths;
-    LogConfig logs;
-    NodeConfig node;
-    EdgeConfig edge;
+struct Config {
+	RuntimePaths paths;
+	LogConfig logs;
+	NodeConfig node;
+	EdgeConfig edge;
 };

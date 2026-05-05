@@ -1,8 +1,5 @@
-//#pragma once
-//void ParseFlags();
-
 #pragma once
 
 #include "config.hpp"
 
-Config ParseFlags(int argc, wchar_t* argv[]);
+Config ParseFlags(int argc, wchar_t *argv[]);

@@ -1,13 +1,7 @@
 #include "../include/env_check.hpp"
-
-// #include <filesystem>
-// #include <iostream>
-// #include <sstream>
-
-// #include <cstdio>
-#include <WebView2.h>
-#include <cwchar>
-#include <wrl/client.h>
+// #include <WebView2.h>
+// #include <cwchar>
+// #include <wrl/client.h>
 
 #pragma comment(lib, "ole32.lib")
 
@@ -30,42 +24,6 @@ static std::wstring Utf8ToWide(const std::string &str) {
 
   return result;
 }
-
-// bool ProbeNodeVersion(ProbeStatus &out_result)
-// {
-//     FILE *pipe = _popen("node.exe --version 2>&1", "r");
-//     if (!pipe)
-//     {
-//         out_result.ok = false;
-//         out_result.diagnostic_message = L"_popen failed";
-//         return false;
-//     }
-//     char buffer[256];
-//     std::string output;
-//     while (fgets(buffer, sizeof(buffer), pipe))
-//     {
-//         output += buffer;
-//     }
-//     int rc = _pclose(pipe);
-//     std::wstring woutput = Utf8ToWide(output);
-//     while (!woutput.empty() &&
-//            (woutput.back() == L'\n' ||
-//             woutput.back() == L'\r'))
-//     {
-//         woutput.pop_back();
-//     }
-//     if (rc == 0)
-//     {
-//         out_result.ok = true;
-//         out_result.detected_value = woutput;
-//         out_result.diagnostic_message = L"node executable works";
-//         return true;
-//     }
-//     out_result.ok = false;
-//     out_result.detected_value = woutput;
-//     out_result.diagnostic_message = L"node launch failed";
-//     return false;
-// }
 
 bool ProbeNodeVersionCreateProcess(ProbeStatus &out_result) {
   SECURITY_ATTRIBUTES sa{};
@@ -246,20 +204,6 @@ bool ProbeRequiredDlls(const std::wstring &dir,
 
   return all_ok;
 }
-
-// void RunEnvironmentProbe(ProbeResult &result)
-// {
-//     ProbeNodeVersion(result.node);
-//     ProbeNodeVersionCreateProcess(result.node);
-
-//     ProbeWebView2Version(result.webview2);
-
-//     ProbeDiskSpace(L".", result.disk);
-
-//     ProbeRequiredDlls(
-//         L".",
-//         result.dlls);
-// }
 
 void RunEnvironmentProbe(ProbeResult &result) {
   ProbeNodeVersionCreateProcess(result.node);

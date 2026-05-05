@@ -2,9 +2,5 @@
 
 #pragma once
 
-#include <windows.h>
-
-bool StartEdge(
-    HINSTANCE hInstance,
-    int nCmdShow
-);
+// #include <windows.h>
+// bool StartEdge(HINSTANCE hInstance, int nCmdShow);

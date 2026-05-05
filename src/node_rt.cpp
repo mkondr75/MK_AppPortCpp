@@ -1,27 +1,15 @@
-#include <windows.h>
-#include <winsock2.h> // ВАЖНО: раньше windows.h
-
-// #include <cstdio>
-#include <ws2tcpip.h>
-// #define INITGUID
-// #include <guiddef.h>
-// #include <stdio.h>
-// #include <psapi.h>
-// #include <tlhelp32.h>
 #include "../include/config.hpp"
+#include <ws2tcpip.h>
+
 extern PROCESS_INFORMATION nodeProcess;
 
 // -------------------- wait for port --------------------
 bool WaitForPort(int port, int timeoutMs) {
   WSADATA wsa;
   WSAStartup(MAKEWORD(2, 2), &wsa);
-
   DWORD start = GetTickCount();
-
   while (GetTickCount() - start < (DWORD)timeoutMs) {
-
     SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
     sockaddr_in addr = {};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);

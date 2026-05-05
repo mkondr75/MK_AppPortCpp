@@ -1,29 +1,5 @@
 // C:\msys64\home\maxko\dev\AppPortCpp\src\load_config.cpp
 #include "..\include\load_config.hpp"
-// #include <cstdio>
-
-// #include <fstream>
-// #include <filesystem>
-
-// static std::wstring ReadFileText(const std::wstring &path)
-// {
-//     std::wifstream file(std::filesystem::path(path));
-//     if (!file.is_open())
-//         return L"";
-//     std::wstringstream buffer;
-//     buffer << file.rdbuf();
-//     return buffer.str();
-// }
-
-// static std::wstring ReadFileText(const std::wstring &path)
-// {
-//     std::wifstream file{std::filesystem::path(path)};
-//     if (!file.is_open())
-//         return L"";
-//     std::wstringstream buffer;
-//     buffer << file.rdbuf();
-//     return buffer.str();
-// }
 
 static std::wstring ReadFileText(const std::wstring &path) {
   HANDLE file = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,

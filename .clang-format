@@ -1,0 +1,24 @@
+# За основу берем стиль Google или LLVM
+#BasedOnStyle: LLVM
+# Настройка отступов (уравниваем всех)
+#IndentWidth: 4
+#TabWidth: 4
+#UseTab:  Always # Never Заменяет табы на пробелы (самый стабильный вариант)
+# Запрещаем менять порядок инклудов, чтобы не ломать Winsock2/Windows
+#SortIncludes: false
+BasedOnStyle: LLVM
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+SortIncludes: false
+# Оставляем большой лимит для склейки кода
+ColumnLimit: 200
+# Не пересобирать текст внутри комментариев (сохранит ваши переносы в коментах)
+ReflowComments: false
+# Выравнивать комментарии в конце строк (чтобы не было каши)
+AlignTrailingComments: true
+# Разрешить короткие блоки (ваши настройки)
+AllowShortBlocksOnASingleLine: Always
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true

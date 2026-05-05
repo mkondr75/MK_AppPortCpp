@@ -1,6 +1,25 @@
-Diagnostics:
+CompileFlags:
+  CompilationDatabase: "build/analysis"
+  Add:
+    - "-target"
+    - "x86_64-w64-windows-gnu"
+    - "-std=c++20"
   ClangTidy:
+    # Включаем полезные проверки качества кода
+    Add: 
+      - bugprone-*
+      - modernize-*
+      - readability-*
+    # Ограничиваем шум только вашими папками
     CheckOptions:
       header-filter: "^(src|include)/.*"
+    # Убираем то, что вам не нужно (как вы и хотели)
     Remove:
       - misc-unused-using-decls
+  
+  # Тот самый строгий режим для инклудов
+  UnusedIncludes: Strict
+
+# Включаем поддержку документации (для всплывающих подсказок)
+Index:
+  StandardLibrary: true
