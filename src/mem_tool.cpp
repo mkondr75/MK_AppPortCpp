@@ -82,3 +82,42 @@ void PrintMemoryBreakdown() {
 	swprintf(line, 4096, L"Other: %llu MB", other);
 	LogLauncherInfo(line);
 }
+
+/// \brief Выгружает все возможные страницы процесса в файл подкачки
+/// (Standby/Free list).
+/// 	TrimMemory(nodeProcess.hProcess);TrimMemory(GetCurrentProcess());
+/// \param hProcess - хандл процесса.
+/// \return воид.
+void TrimMemory(HANDLE hProcess) {
+	// Выгружает все возможные страницы процесса в файл подкачки (Standby/Free
+	// list)
+	SetProcessWorkingSetSize(hProcess, (SIZE_T)-1, (SIZE_T)-1);
+	EmptyWorkingSet(hProcess);
+}
+
+/// \brief Рекурсивно для вложенных процессов освобождает память
+///  Применение к Node и самому себе TrimTree(nodeProcess.hProcess);
+///  TrimTree(GetCurrentProcessId());
+/// \param parentId -  ID родителя дерева.
+/// \return воид.
+void TrimTree(DWORD parentId) {
+	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hSnap == INVALID_HANDLE_VALUE) return;
+
+	PROCESSENTRY32W pe;
+	pe.dwSize = sizeof(pe);
+
+	if (Process32FirstW(hSnap, &pe)) {
+		do {
+			if (pe.th32ParentProcessID == parentId) {
+				HANDLE hChild = OpenProcess(PROCESS_SET_QUOTA | PROCESS_QUERY_INFORMATION, FALSE, pe.th32ProcessID);
+				if (hChild) {
+					SetProcessWorkingSetSize(hChild, (SIZE_T)-1, (SIZE_T)-1);
+					TrimTree(pe.th32ProcessID); // Рекурсивно для вложенных
+					CloseHandle(hChild);
+				}
+			}
+		} while (Process32NextW(hSnap, &pe));
+	}
+	CloseHandle(hSnap);
+}

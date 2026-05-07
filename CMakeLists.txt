@@ -35,7 +35,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_options(AppGui PRIVATE -Og -g -gcodeview)
     else()
-        target_compile_options(AppGui PRIVATE -O3 -gcodeview)
+       target_compile_options(AppGui PRIVATE -O3 -gcodeview) # сливает всю инфу в пдб файл а ехе стирильный
+        # target_compile_options(AppGui PRIVATE -O3) # пдб порезаный ехе тотже байт в байт
         # Убирает все отладочные секции из финального бинарника
         target_link_options(AppGui PRIVATE "-Wl,-s")
 		target_link_options(AppGui PRIVATE "-Wl,--gc-sections" "-static") 
@@ -61,10 +62,12 @@ target_include_directories(AppGui PRIVATE
 )
 
 # 5. Линковка библиотек
+#target_link_options(AppGui PRIVATE "-nodefaultlibs") - faill
 target_link_libraries(AppGui PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/WebView2Loader.dll"
-    comctl32 dwmapi ole32 uuid user32 gdi32 ws2_32 
+     ole32 uuid user32 gdi32 ws2_32 
 )
+#    comctl32 dwmapi ole32 uuid user32 gdi32 ws2_32 
 
 # 6. Вывод и Map-файл
 set_target_properties(AppGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
