@@ -65,9 +65,11 @@ target_include_directories(AppGui PRIVATE
 #target_link_options(AppGui PRIVATE "-nodefaultlibs") - faill
 target_link_libraries(AppGui PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/lib/WebView2Loader.dll"
-     ole32 uuid user32 gdi32 ws2_32 
+     user32 gdi32 ws2_32 
 )
 #    comctl32 dwmapi ole32 uuid user32 gdi32 ws2_32 
+target_link_options(AppGui PRIVATE "-Wl,--stack,65536")
+target_link_options(AppGui PRIVATE "-Wl,--heap,65536")
 
 # 6. Вывод и Map-файл
 set_target_properties(AppGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")

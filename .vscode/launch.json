@@ -10,12 +10,13 @@
 			"request": "launch",
 			"program": "${workspaceFolder}/bin/AppGui.exe",
 			"args": [
-				" --log-launcher=cons"
+				"--log-launcher=cons"
 			],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/bin",
 			"environment": [],
 			"console": "integratedTerminal",
+			// "console": "externalTerminal", // ИЗМЕНЕНО: используем внешнее окно
 			"symbolSearchPath": "${workspaceFolder}/bin" // Указываем, где искать PDB
 		},
 		{
@@ -24,7 +25,7 @@
 			"request": "launch",
 			"program": "${workspaceFolder}/bin/AppGui.exe",
 			"args": [
-				" --log-launcher=cons"
+				"--log-launcher=cons"
 			],
 			"stopAtEntry": false,
 			"cwd": "${workspaceFolder}/bin",

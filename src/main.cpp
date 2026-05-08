@@ -4,7 +4,7 @@
 #include "../include/main.hpp"
 // #include <commctrl.h>
 // #include <dwmapi.h>
-#include <guiddef.h> // Обязательно для IsEqualGUID
+// #include <guiddef.h> // Обязательно для IsEqualGUID
 #include <windows.h>
 
 // -------------------- globals --------------------
@@ -13,6 +13,44 @@ ICoreWebView2Controller *controller = nullptr;
 ICoreWebView2 *webview = nullptr;
 Config cfg;
 PROCESS_INFORMATION nodeProcess = {};
+////////////// Ole32 stelth ///////////////////
+typedef HRESULT(WINAPI *PFN_CoInitializeEx)(LPVOID, DWORD);
+typedef void(WINAPI *PFN_CoUninitialize)(void);
+typedef LPVOID(WINAPI *PFN_CoTaskMemAlloc)(SIZE_T);
+typedef LPVOID(WINAPI *PFN_CoTaskMemFree)(LPVOID);
+PFN_CoInitializeEx pCoInitializeEx = nullptr;
+PFN_CoUninitialize pCoUninitialize = nullptr;
+PFN_CoTaskMemAlloc pCoTaskMemAlloc = nullptr;
+PFN_CoTaskMemFree pCoTaskMemFree = nullptr;
+// CoTaskMemFree(version); void CoTaskMemFree(LPVOID pv)
+
+HMODULE hOle32 = nullptr;
+////////////// Ole32 stelth ///////////////////
+/// \brief Функция инициализации «невидимого» COM
+/// \param param Описание параметра.
+/// \return Значение при успехе/ошибке.
+bool InitStealthOLE() {
+	hOle32 = GetModuleHandleW(L"ole32.dll");
+	if (!hOle32) hOle32 = LoadLibraryW(L"ole32.dll");
+
+	if (hOle32) {
+		pCoInitializeEx = (PFN_CoInitializeEx)GetProcAddress(hOle32, "CoInitializeEx");
+		pCoUninitialize = (PFN_CoUninitialize)GetProcAddress(hOle32, "CoUninitialize");
+		pCoTaskMemAlloc = (PFN_CoTaskMemAlloc)GetProcAddress(hOle32, "CoTaskMemAlloc");
+	}
+
+	return (pCoInitializeEx && pCoUninitialize && pCoTaskMemAlloc);
+}
+/// \brief Правим AppEnvOptions (AllocString)
+/// Теперь вместо прямого вызова используем наш указатель:
+/// \param param Описание параметра.
+/// \return Значение при успехе/ошибке.
+LPWSTR AllocString(const std::wstring &str) {
+	if (!pCoTaskMemAlloc) return nullptr; // Защита
+	LPWSTR ptr = (LPWSTR)pCoTaskMemAlloc((str.length() + 1) * sizeof(WCHAR));
+	if (ptr) wcscpy(ptr, str.c_str());
+	return ptr;
+}
 
 // 1. Ручная реализация ICoreWebView2EnvironmentOptions
 constexpr GUID HARDCODED_IID_EnvOptions = {0x2fde08a8, 0x1e9a, 0x4766, {0x8c, 0x05, 0x95, 0xa9, 0xce, 0xb9, 0xd1, 0xc5}};
@@ -23,8 +61,14 @@ class AppEnvOptions : public ICoreWebView2EnvironmentOptions {
 	std::wstring m_args;
 	ULONG m_refCount = 1;
 	// Вспомогательный аллокатор COM-строк
+	// LPWSTR AllocString(const std::wstring &str) {
+	// 	LPWSTR ptr = (LPWSTR)CoTaskMemAlloc((str.length() + 1) * sizeof(WCHAR));
+	// 	if (ptr) wcscpy(ptr, str.c_str());
+	// 	return ptr;
+	// }
 	LPWSTR AllocString(const std::wstring &str) {
-		LPWSTR ptr = (LPWSTR)CoTaskMemAlloc((str.length() + 1) * sizeof(WCHAR));
+		if (!pCoTaskMemAlloc) return nullptr; // Защита
+		LPWSTR ptr = (LPWSTR)pCoTaskMemAlloc((str.length() + 1) * sizeof(WCHAR));
 		if (ptr) wcscpy(ptr, str.c_str());
 		return ptr;
 	}
@@ -218,7 +262,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
 	wc.hbrBackground = CreateSolidBrush(RGB(30, 30, 30));
-	CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+	// CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+	if (InitStealthOLE()) { pCoInitializeEx(NULL, COINIT_APARTMENTTHREADED); }
 
 	typedef LPWSTR(WINAPI * PFN_GetCommandLineW)(void);
 	typedef LPWSTR *(WINAPI * PFN_CommandLineToArgvW)(LPCWSTR, int *);
@@ -398,6 +443,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 		DispatchMessage(&msg);
 	}
 	/**/
-	CoUninitialize();
+	// CoUninitialize();
+	if (pCoUninitialize) pCoUninitialize();
 	return 0;
 }

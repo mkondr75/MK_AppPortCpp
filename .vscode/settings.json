@@ -74,7 +74,24 @@
 	"security.workspace.trust.enabled": false,
 	"cmake.buildToolArgs": [
 		"-v"
-	]
+	],
+	"cmake.debugConfig": {
+		"args": [
+			// "--log-launcher=cons"
+		],
+		"cwd": "${workspaceFolder}/bin",
+		"environment": [
+			{
+				"name": "PATH",
+				"value": "${env:PATH};C:\\msys64\\ucrt64\\bin"
+			}
+		],
+		"console": "integratedTerminal",
+		"logging": {
+			"moduleLoad": false,
+			"engineLogging": false
+		}
+	}
 }
 // "--compile-commands-dir=build/analysis",
 // "--background-index"
