@@ -21,6 +21,7 @@ set(SOURCES
     src/load_config.cpp
     src/node_question.cpp
 	src/mem_tool.cpp
+	src/edge_rt.cpp
 )
 
 # 2. Создание EXE
