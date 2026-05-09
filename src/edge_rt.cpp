@@ -1,7 +1,7 @@
 /// \file edge_rt.cpp
 #include "../include/edge_rt.hpp"
 #include <webview2.h>
-// #include <iostream>
+
 extern void PrintMemoryBreakdown();
 // -------------------- Stealth OLE Globals --------------------
 typedef HRESULT(WINAPI *PFN_CoInitializeEx)(LPVOID, DWORD);
@@ -203,43 +203,69 @@ void EdgeRT::ApplyDarkMode() {
 }
 
 void EdgeRT::InitializeWebView(const Config &cfg) {
-	const wchar_t *webviewArgs3 = L"--disable-gpu "
-								  L"--disable-gpu-compositing "
-								  L"--disable-software-rasterizer "
-								  L"--renderer-process-limit=1 "
-								  L"--disable-speech-api "
-								  L"--disable-background-networking "
-								  L"--disable-sync "
-								  L"--disable-default-apps "
-								  L"--disable-dev-tools "
-								  L"--disable-webassembly "
-								  L"--disable-plugins "
-								  L"--disable-extensions "
-								  L"--disable-site-isolation-trials "
-								  L"--in-process-gpu "
-								  L"--use-angle=swiftshader "
-								  L"--disable-gpu-sandbox "
-								  L"--js-flags=\"--max-semi-space-size=8 --max-old-space-size=128 --lite-mode\" "
-								  L"--disable-features=AudioServiceOutOfProcess,MediaSessionService,LayoutNGPrinting,Printing,Translate,Extensions,GlobalMediaControls,PictureInPicture,WebRtc";
+	const wchar_t *webviewArgs3 =
+		// ГРУППА 1: Архитектура процесса (Высший приоритет)
+		L"--single-process "		   // Все подсистемы в один EXE
+		L"--renderer-process-limit=1 " // Жесткий лимит на потоки отрисовки
+		L"--in-process-gpu "		   // GPU-поток внутри родителя
 
+		// ГРУППА 2: Полное подавление графики (Убираем SwiftShader и GPU)
+		L"--disable-gpu "					// Отключаем аппаратное ускорение
+		L"--disable-gpu-compositing "		// Запрет на композицию через GPU
+		L"--disable-software-rasterizer "	// Отключаем программный эмулятор
+		L"--disable-gpu-sandbox "			// Убираем лишние барьеры для встроеного GPU
+		L"--disable-gpu-shader-disk-cache " // [AA_] Запрет на запись кэша шейдеров на диск
+
+		// ГРУППА 3: Сеть и внешние сервисы (Минимизация трафика и потоков)
+		L"--disable-background-networking " // Глушим сетевой шум
+		L"--disable-sync "					// Отключаем синхронизацию профиля
+		L"--disable-speech-api "			// Убираем распознавание речи
+		L"--disable-domain-reliability "	// [AA_] Отключаем проверку доступности доменов
+
+		// ГРУППА 4: Изоляция и безопасность (Снижение оверхеда)
+		L"--disable-site-isolation-trials " // Отключаем изоляцию сайтов (для лаунчера не нужно)
+		L"--disable-webassembly "			// Экономим на WASM-движке
+		L"--disable-plugins "				// Никаких плагинов
+		L"--disable-extensions "			// Полный запрет расширений
+		L"--disable-dev-tools "				// Отключаем инструменты отладки в релизе
+		// Добавь эти флаги в AA_edge_rt.cpp
+		L"--disable-font-subpixel-positioning " // Упрощает отрисовку текста
+		L"--disable-lcd-text "					// Еще меньше памяти на шрифты
+		L"--disable-notifications "				// Отключаем систему уведомлений
+		L"--disable-remote-core "				// Убираем возможность удаленного управления
+		// L"--no-sandbox "						// (ТОЛЬКО ДЛЯ ТЕСТА) Схлопывает границы безопасности, может убрать еще 5.8 MB(пруф)
+		// ГРУППА 5: Тонкая настройка V8 (JS-диета)
+		L"--js-flags=\"--max-semi-space-size=8 --max-old-space-size=128 --lite-mode --expose-gc\" " // [AA_] Добавлен ручной GC
+
+		// ГРУППА 6: Отключение тяжелых фич (Компоненты)
+		L"--disable-features=AudioServiceOutOfProcess,MediaSessionService,LayoutNGPrinting,"
+		L"Printing,Translate,Extensions,GlobalMediaControls,PictureInPicture,WebRtc"; //
 	SetEnvironmentVariableW(L"WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", webviewArgs3);
 
 	HRESULT hr = CreateCoreWebView2EnvironmentWithOptions(NULL, L".\\WebView2_Profile", NULL, new EnvHandler(m_hwnd));
 	if (FAILED(hr)) { MessageBoxW(m_hwnd, L"Ошибка старта WebView2!", L"Crash", MB_ICONERROR); }
+
+	// dtbugg
+	wchar_t AA_envCheck[1024];
+	if (GetEnvironmentVariableW(L"WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", AA_envCheck, 1024)) {
+		// Мы должны увидеть наши флаги в консоли/логе ДО вызова Create...
+		OutputDebugStringW(L"[AA_DEBUG] Flags found: ");
+		OutputDebugStringW(AA_envCheck);
+	} else {
+		OutputDebugStringW(L"[AA_DEBUG] CRITICAL: Flags are missing!");
+	}
 }
 
 bool EdgeRT::Start(const Config &cfg, int nCmdShow) {
 	const wchar_t CLASS_NAME[] = L"AppGui";
 	WNDCLASSW wc = {};
-	wc.lpfnWndProc = EdgeRT::WndProc;
+	wc.lpfnWndProc = EdgeRT::AA_WndProc;
 	wc.hInstance = m_hInstance;
 	wc.lpszClassName = CLASS_NAME;
 	wc.hbrBackground = CreateSolidBrush(RGB(30, 30, 30));
 	RegisterClassW(&wc);
-
-	m_hwnd = CreateWindowExW(0, CLASS_NAME, L"AppGui", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1200, 800, NULL, NULL, m_hInstance, NULL);
+	m_hwnd = CreateWindowExW(0, CLASS_NAME, L"AppGui", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1200, 800, NULL, NULL, m_hInstance, this); // Передаем this
 	if (!m_hwnd) return false;
-
 	ApplyDarkMode();
 	ShowWindow(m_hwnd, nCmdShow);
 	UpdateWindow(m_hwnd);
@@ -248,26 +274,31 @@ bool EdgeRT::Start(const Config &cfg, int nCmdShow) {
 	return true;
 }
 
-LRESULT CALLBACK EdgeRT::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-		// case WM_TIMER:
-		// 	switch (wParam) {
-		// 	case 1:
-		// 		LogLauncherInfo(L"launcher Memory usage after WebView2 ");
-		// 		PrintMemoryBreakdown();
-		// 	}
-		// 	return 0;
-
-	case WM_SIZE:
-		if (g_controller) {
-			RECT bounds;
-			GetClientRect(hWnd, &bounds);
-			g_controller->put_Bounds(bounds);
+LRESULT CALLBACK EdgeRT::AA_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	// Вытаскиваем "хозяина" окна из системного кармана
+	EdgeRT *AA_pInstance = (EdgeRT *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+	// Фокус инициализации: ловим момент рождения окна
+	if (msg == WM_NCCREATE) {
+		CREATESTRUCTW *AA_pCreateData = (CREATESTRUCTW *)lParam;
+		AA_pInstance = (EdgeRT *)AA_pCreateData->lpCreateParams;
+		SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)AA_pInstance);
+	}
+	// Если связь установлена, работаем через AA_pInstance
+	if (AA_pInstance) {
+		switch (msg) {
+		case WM_DESTROY:
+			if (AA_pInstance->m_exitHandler) { AA_pInstance->m_exitHandler(); }
+			PostQuitMessage(0);
+			return 0;
+		case WM_SIZE:
+			// Здесь мы теперь можем безопасно обращаться к AA_m_hwnd или другим членам
+			if (g_controller) {
+				RECT AA_rectBounds;
+				GetClientRect(hWnd, &AA_rectBounds);
+				g_controller->put_Bounds(AA_rectBounds);
+			}
+			return 0;
 		}
-		return 0;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
 	}
 	return DefWindowProcW(hWnd, msg, wParam, lParam);
 }

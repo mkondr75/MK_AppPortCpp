@@ -72,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 
 	// 4. Разведка окружения
 	ProbeResult probe{};
-	RunEnvironmentProbe(probe);
-	PrintProbeResult(probe);
+	// RunEnvironmentProbe(probe);
+	// PrintProbeResult(probe);
 
 	// Тест конфигов
 	Config cfg_tst;
@@ -84,15 +84,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	LoadConfigJson(cfg_tst2);
 
 	// 5. GUI Setup & Node Start
-	First_slide(hInstance);
-	Sleep(1000);
-	PrintMemoryBreakdown();
+	// First_slide(hInstance);
+	// Sleep(1000);
+	// PrintMemoryBreakdown();
 
 	StartNode(cfg);
 	Sleep(1000);
 	if (!WaitForPort(9090, 15000)) { MessageBoxW(NULL, L"Server did not start", L"Error", MB_OK); }
 	Sleep(1000);
 	PrintMemoryBreakdown();
+	// 7. Тримминг памяти (агрессивный)
+	// TrimMemory(GetCurrentProcess());
+	TrimTree(GetCurrentProcessId());
+	// TrimTree(GetNodePID());
 
 	// 6. Инициализация UI (Edge_RT)
 	EdgeRT edge(hInstance);
@@ -101,10 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 		return 1;
 	}
 	edge.SetMessageHandler(OnJSMessage); // Подключаем мост
-	// 7. Тримминг памяти (агрессивный)
-	// TrimMemory(GetCurrentProcess());
-	// TrimTree(GetCurrentProcessId());
-	// TrimTree(GetNodePID());
+
 	PrintMemoryBreakdown();
 
 	// Ждем пару секунд, чтобы WebView2 успел поднять DOM ???
@@ -114,15 +115,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	// SetTimer(edge.GetHWND(), 1, 60000, NULL);
 	UINT_PTR memTimerId = SetTimer(NULL, 1000, 10000, NULL);
 	// 8. Цикл сообщений
-	int tmp = 0;
+	// int tmp = 0;
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0)) {
 		// Ловим наш таймер потока до того, как он уйдет в Dispatch
 		if (msg.message == WM_TIMER && msg.wParam == memTimerId) {
 			LogLauncherInfo(L"launcher Memory usage tick (60s)");
 			PrintMemoryBreakdown();
-			if (tmp == 0) edge.ExecuteJS(L"alert('Bridge C++ to JS is online!');");
-			tmp = 1;
+			// if (tmp == 0) edge.ExecuteJS(L"alert('Bridge C++ to JS is online!');");
+			// tmp = 1;
 			continue; // Пропускаем Translate/Dispatch, мы уже обработали
 		}
 
