@@ -4,15 +4,15 @@
 // #include <wrl/client.h>
 
 // #pragma comment(lib, "ole32.lib")
-typedef HRESULT(WINAPI *PFN_CoInitializeEx)(LPVOID, DWORD);
-typedef void(WINAPI *PFN_CoUninitialize)(void);
-typedef LPVOID(WINAPI *PFN_CoTaskMemAlloc)(SIZE_T);
-typedef LPVOID(WINAPI *PFN_CoTaskMemFree)(LPVOID);
+// typedef HRESULT(WINAPI *PFN_CoInitializeEx)(LPVOID, DWORD);
+// typedef void(WINAPI *PFN_CoUninitialize)(void);
+// typedef LPVOID(WINAPI *PFN_CoTaskMemAlloc)(SIZE_T);
+// typedef LPVOID(WINAPI *PFN_CoTaskMemFree)(LPVOID);
 
-extern PFN_CoInitializeEx pCoInitializeEx;
-extern PFN_CoUninitialize pCoUninitialize;
-extern PFN_CoTaskMemAlloc pCoTaskMemAlloc;
-extern PFN_CoTaskMemFree pCoTaskMemFree;
+// extern PFN_CoInitializeEx pCoInitializeEx;
+// extern PFN_CoUninitialize pCoUninitialize;
+// extern PFN_CoTaskMemAlloc pCoTaskMemAlloc;
+// extern PFN_CoTaskMemFree pCoTaskMemFree;
 
 extern void LogLauncherInfo(const wchar_t *msg);
 extern void LogLauncherError(const wchar_t *msg);
@@ -126,30 +126,67 @@ bool ProbeNodeVersionCreateProcess(ProbeStatus &out_result) {
 	return false;
 }
 
+// bool ProbeWebView2Version(ProbeStatus &out_result) {
+// 	HRESULT hr = pCoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+// 	LPWSTR version = nullptr;
+// 	// hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version);
+// 	if (SUCCEEDED(hr) && version) {
+// 		out_result.ok = true;
+// 		out_result.detected_value = version;
+// 		out_result.diagnostic_message = L"WebView2 runtime detected";
+// 		// CoTaskMemFree(version);
+// 		pCoTaskMemFree(version);
+// 		pCoUninitialize();
+// 		return true;
+// 	}
+// 	out_result.ok = false;
+// 	out_result.diagnostic_message = L"WebView2 runtime not found";
+// 	pCoUninitialize();
+// 	return false;
+// }
+
+// AA_WebViewHealthCheck - изолированная разведка рантайма
+// bool AA_WebViewHealthCheck(ProbeStatus &out_result) {
 bool ProbeWebView2Version(ProbeStatus &out_result) {
-	HRESULT hr = pCoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-
+	// Локальная загрузка для автономности чекера
+	HMODULE hCom = LoadLibraryW(L"combase.dll");
+	HMODULE hLoader = GetModuleHandleW(L"WebView2Loader.dll");
+	if (!hLoader) hLoader = LoadLibraryW(L"WebView2Loader.dll");
+	if (!hCom || !hLoader) {
+		out_result.ok = false;
+		out_result.diagnostic_message = L"AA_ERR: OLE or Loader.dll missing";
+		if (hCom) FreeLibrary(hCom);
+		return false;
+	}
+	auto pInit = (HRESULT(WINAPI *)(LPVOID, DWORD))GetProcAddress(hCom, "CoInitializeEx");
+	auto pUninit = (void(WINAPI *)(void))GetProcAddress(hCom, "CoUninitialize");
+	auto pFree = (void(WINAPI *)(LPVOID))GetProcAddress(hCom, "CoTaskMemFree");
+	auto pGetVer = (HRESULT(WINAPI *)(LPCWSTR, LPWSTR *))GetProcAddress(hLoader, "GetAvailableCoreWebView2BrowserVersionString");
+	if (!pInit || !pUninit || !pGetVer) {
+		out_result.ok = false;
+		out_result.diagnostic_message = L"AA_ERR: Symbols not found";
+		FreeLibrary(hCom);
+		return false;
+	}
+	HRESULT hr = pInit(nullptr, 0x2); // COINIT_APARTMENTTHREADED
 	LPWSTR version = nullptr;
-
-	// hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version);
-
+	hr = pGetVer(nullptr, &version);
 	if (SUCCEEDED(hr) && version) {
 		out_result.ok = true;
 		out_result.detected_value = version;
-		out_result.diagnostic_message = L"WebView2 runtime detected";
-		// CoTaskMemFree(version);
-		pCoTaskMemFree(version);
-		pCoUninitialize();
-
-		return true;
+		out_result.diagnostic_message = L"WebView2 OK";
+		if (pFree) pFree(version);
+	} else {
+		out_result.ok = false;
+		out_result.diagnostic_message = L"WebView2 Runtime not found";
 	}
+	pUninit();
 
-	out_result.ok = false;
-	out_result.diagnostic_message = L"WebView2 runtime not found";
-
-	pCoUninitialize();
-
-	return false;
+	if (hLoader) {
+		FreeLibrary(hLoader); // Теперь чекер не оставляет следов в RAM
+	}
+	if (hCom) { FreeLibrary(hCom); }
+	return out_result.ok;
 }
 
 bool ProbeDiskSpace(const std::wstring &path, DiskProbeResult &out_result) {
@@ -206,53 +243,6 @@ void RunEnvironmentProbe(ProbeResult &result) {
 
 	ProbeRequiredDlls(L".", result.dlls);
 }
-
-// void PrintProbeResult(const ProbeResult &result)
-// {
-//     // std::wcout << L"\n=== ENV PROBE ===\n";
-//     LogLauncherInfo(L"\n=== ENV PROBE ===\n");
-//     std::wcout
-//         << L"\n[NODE]\n"
-//         << L"OK: "
-//         << (result.node.ok ? L"YES" : L"NO")
-//         << L"\nVALUE: "
-//         << result.node.detected_value
-//         << L"\nMSG: "
-//         << result.node.diagnostic_message
-//         << L"\n";
-//     std::wcout
-//         << L"\n[WEBVIEW2]\n"
-//         << L"OK: "
-//         << (result.webview2.ok ? L"YES" : L"NO")
-//         << L"\nVALUE: "
-//         << result.webview2.detected_value
-//         << L"\nMSG: "
-//         << result.webview2.diagnostic_message
-//         << L"\n";
-//     double free_gb =
-//         (double)result.disk.free_bytes /
-//         1024.0 / 1024.0 / 1024.0;
-//     double total_gb =
-//         (double)result.disk.total_bytes /
-//         1024.0 / 1024.0 / 1024.0;
-//     std::wcout
-//         << L"\n[DISK]\n"
-//         << L"FREE GB: "
-//         << free_gb
-//         << L"\nTOTAL GB: "
-//         << total_gb
-//         << L"\n";
-//     std::wcout << L"\n[DLLS]\n";
-//     for (const auto &dll : result.dlls)
-//     {
-//         std::wcout
-//             << dll.dll_name
-//             << L" -> "
-//             << (dll.exists ? L"FOUND" : L"MISSING")
-//             << L"\n";
-//     }
-//     std::wcout << L"\n=================\n";
-// }
 
 void PrintProbeResult(const ProbeResult &result) {
 	LogLauncherInfo(L"=== ENV PROBE BEGIN ===");

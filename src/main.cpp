@@ -72,8 +72,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 
 	// 4. Разведка окружения
 	ProbeResult probe{};
-	// RunEnvironmentProbe(probe);
-	// PrintProbeResult(probe);
+	RunEnvironmentProbe(probe);
+	PrintProbeResult(probe);
 
 	// Тест конфигов
 	Config cfg_tst;
@@ -84,9 +84,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	LoadConfigJson(cfg_tst2);
 
 	// 5. GUI Setup & Node Start
-	// First_slide(hInstance);
-	// Sleep(1000);
-	// PrintMemoryBreakdown();
+	First_slide(hInstance);
+	Sleep(1000);
+	PrintMemoryBreakdown();
 
 	StartNode(cfg);
 	Sleep(1000);
