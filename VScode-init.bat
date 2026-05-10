@@ -12,6 +12,8 @@ for /f "tokens=1 delims==" %%A in ('set') do (
 ::)
 ::TEMP TMP USERPROFILE APPDATA LOCALAPPDATA PATHEXT c:\vscodeport;
 set "PATH=c:\windows\system32;c:\windows;C:\Program Files\Git\cmd;c:\msys64\ucrt64\bin;C:\msys64\home\maxko\dev\dev_node\node_bin;C:\Users\maxko\AppData\Local\Programs\Microsoft VS Code\bin"
+::set "PATH=c:\windows\system32;c:\windows;C:\msys64\usr\bin;c:\msys64\ucrt64\bin;C:\msys64\home\maxko\dev\dev_node\node_bin;C:\Users\maxko\AppData\Local\Programs\Microsoft VS Code\bin"
+
 ::set "CODE_EXE=c:\vscodeport\Code.exe"
 set "CODE_EXE=C:\Users\maxko\AppData\Local\Programs\Microsoft VS Code\Code.exe"
 ::SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
