@@ -10,6 +10,7 @@
 #include "../include/init_config.hpp"
 #include "../include/save_config.hpp"
 #include "../include/load_config.hpp"
+#include "../include/wizard_engine.hpp"
 #include <windows.h>
 
 Config cfg;
@@ -84,7 +85,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	LoadConfigJson(cfg_tst2);
 
 	// 5. GUI Setup & Node Start
-	First_slide(hInstance);
+	// First_slide(hInstance);
+	bool chek = RunWizard(hInstance);
 	Sleep(1000);
 	PrintMemoryBreakdown();
 

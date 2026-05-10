@@ -19,3 +19,4 @@
 // #include "save_config.hpp"
 // #include "wk_flags.hpp"
 // #include "mem_tool.hpp"
+#include "wizard_engine.hpp"

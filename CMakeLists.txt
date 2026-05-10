@@ -22,6 +22,7 @@ set(SOURCES
     src/node_question.cpp
 	src/mem_tool.cpp
 	src/edge_rt.cpp
+	src/wizard_engine.cpp
 )
 
 # 2. Создание EXE
