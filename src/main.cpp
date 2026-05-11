@@ -77,12 +77,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	PrintProbeResult(probe);
 
 	// Тест конфигов
-	Config cfg_tst;
-	FillDefaultConfig(cfg_tst);
-	SaveConfigJson(cfg_tst);
-	Config cfg_tst2;
-	cfg_tst2.paths.config_file = cfg_tst.paths.config_file;
-	LoadConfigJson(cfg_tst2);
+	Config cfg_tst;											//test
+	FillDefaultConfig(cfg_tst);								//test
+	SaveConfigJson(cfg_tst);								//test
+	Config cfg_tst2;										//test
+	cfg_tst2.paths.config_file = cfg_tst.paths.config_file; //test
+	LoadConfigJson(cfg_tst2);								//test
 
 	// 5. GUI Setup & Node Start
 	// First_slide(hInstance);
@@ -90,7 +90,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	Sleep(1000);
 	PrintMemoryBreakdown();
 
-	StartNode(cfg);
+	// StartNode(cfg);
+	StartNode(cfg_tst2); //test
 	Sleep(1000);
 	if (!WaitForPort(9090, 15000)) { MessageBoxW(NULL, L"Server did not start", L"Error", MB_OK); }
 	Sleep(1000);

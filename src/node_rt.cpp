@@ -69,25 +69,33 @@ void StartNode(Config &cfg) {
 	// console.log(process.env);
 	// console.log(process.execArgv);process.stdin.resume();
 	// process.stdin.on('data', ()=>process.exit(0));\"";
-	wchar_t cmd[] = L"\"node.exe\" --max-old-space-size=192 --max-semi-space-size=16 "
-					L"--expose-gc --permission --allow-fs-read=./* --allow-fs-write=./* "
-					L"--allow-fs-read=C:\\dev_node\\trilium_dev "
-					L"--allow-fs-write=C:\\dev_node\\trilium_dev --allow-child-process "
-					L"--allow-addons .\\apps\\server\\dist\\main.cjs";
+	// wchar_t cmd[] = L"\"node.exe\" --max-old-space-size=192 --max-semi-space-size=16 "
+	// 				L"--expose-gc --permission --allow-fs-read=./* --allow-fs-write=./* "
+	// 				L"--allow-fs-read=C:\\dev_node\\trilium_dev "
+	// 				L"--allow-fs-write=C:\\dev_node\\trilium_dev --allow-child-process "
+	// 				L"--allow-addons .\\apps\\server\\dist\\main.cjs";
+
+	std::wstring cmd_buf = L"\"" + cfg.node.exe + L"\" " + cfg.node.args;
+	std::vector<wchar_t> cmd_vector(cmd_buf.begin(), cmd_buf.end());
+	cmd_vector.push_back(L'\0');
+	LPWSTR cmd = cmd_vector.data();
+
 	LPWCH base = GetEnvironmentStringsW();
 	FreeEnvironmentStringsW(base);
-	SetEnvironmentVariableW(L"APPDATA", L"C:\\dev_node\\trilium_dev\\profile\\AppData\\Roaming");
-	SetEnvironmentVariableW(L"ComSpec", L"C:\\WINDOWS\\system32\\cmd.exe");
-	SetEnvironmentVariableW(L"HOST", L"127.0.0.1");
-	SetEnvironmentVariableW(L"LOCALAPPDATA", L"C:\\dev_node\\trilium_dev\\profile\\AppData\\Local");
-	SetEnvironmentVariableW(L"PATH", L"C:\\msys64\\home\\maxko\\dev\\dev_"
-									 L"node\\node_bin;C:\\WINDOWS\\system32");
-	SetEnvironmentVariableW(L"SYSTEMROOT", L"C:\\WINDOWS");
-	SetEnvironmentVariableW(L"TEMP", L"C:\\dev_node\\trilium_dev\\profile\\.tmp");
-	SetEnvironmentVariableW(L"TMP", L"C:\\dev_node\\trilium_dev\\profile\\.tmp");
-	SetEnvironmentVariableW(L"TRILIUM_DATA_DIR", L"C:\\dev_node\\trilium_dev\\data_sandbox");
-	SetEnvironmentVariableW(L"TRILIUM_PORT", L"9090");
-	SetEnvironmentVariableW(L"USERPROFILE", L"C:\\dev_node\\trilium_dev\\profile");
+
+	for (const auto &e : cfg.node.node_env) { SetEnvironmentVariableW(e.key.c_str(), e.value.c_str()); }
+
+	// SetEnvironmentVariableW(L"APPDATA", L"C:\\dev_node\\trilium_dev\\profile\\AppData\\Roaming");
+	// SetEnvironmentVariableW(L"ComSpec", L"C:\\WINDOWS\\system32\\cmd.exe");
+	// SetEnvironmentVariableW(L"HOST", L"127.0.0.1");
+	// SetEnvironmentVariableW(L"LOCALAPPDATA", L"C:\\dev_node\\trilium_dev\\profile\\AppData\\Local");
+	// SetEnvironmentVariableW(L"PATH", L"C:\\msys64\\home\\maxko\\dev\\dev_node\\node_bin;C:\\WINDOWS\\system32");
+	// SetEnvironmentVariableW(L"SYSTEMROOT", L"C:\\WINDOWS");
+	// SetEnvironmentVariableW(L"TEMP", L"C:\\dev_node\\trilium_dev\\profile\\.tmp");
+	// SetEnvironmentVariableW(L"TMP", L"C:\\dev_node\\trilium_dev\\profile\\.tmp");
+	// SetEnvironmentVariableW(L"TRILIUM_DATA_DIR", L"C:\\dev_node\\trilium_dev\\data_sandbox");
+	// SetEnvironmentVariableW(L"TRILIUM_PORT", L"9090");
+	// SetEnvironmentVariableW(L"USERPROFILE", L"C:\\dev_node\\trilium_dev\\profile");
 
 	// wchar_t sysroot[MAX_PATH];
 	// GetEnvironmentVariableW(L"SystemRoot", sysroot, MAX_PATH);
@@ -98,25 +106,25 @@ void StartNode(Config &cfg) {
 	BOOL ok = false;
 	if (cfg.logs.node == LogMode::FILE_MODE) {
 		ok = CreateProcessW(NULL, cmd, NULL, NULL,
-							1,							  //(cfg.logs.node == LogMode::FILE_MODE)
-							CREATE_NO_WINDOW,			  // CREATE_NEW_CONSOLE,//
-							NULL,						  // env,
-							L"C:\\dev_node\\trilium_dev", // ← рабочая папка
-							&si, &nodeProcess);
+							1,				  //(cfg.logs.node == LogMode::FILE_MODE)
+							CREATE_NO_WINDOW, // CREATE_NEW_CONSOLE,//
+							NULL,			  // env,
+							// L"C:\\dev_node\\trilium_dev", // ← рабочая папка
+							cfg.node.working_dir.data(), &si, &nodeProcess);
 	} else if (cfg.logs.node == LogMode::CONS) {
 		ok = CreateProcessW(NULL, cmd, NULL, NULL,
-							false,						  //(cfg.logs.node == LogMode::FILE_MODE)
-							CREATE_NEW_CONSOLE,			  // CREATE_NO_WINDOW,//
-							NULL,						  // env,
-							L"C:\\dev_node\\trilium_dev", // ← рабочая папка
-							&si, &nodeProcess);
+							false,				//(cfg.logs.node == LogMode::FILE_MODE)
+							CREATE_NEW_CONSOLE, // CREATE_NO_WINDOW,//
+							NULL,				// env,
+							// L"C:\\dev_node\\trilium_dev", // ← рабочая папка
+							cfg.node.working_dir.data(), &si, &nodeProcess);
 	} else {
 		ok = CreateProcessW(NULL, cmd, NULL, NULL,
-							false,						  //(cfg.logs.node == LogMode::FILE_MODE)
-							CREATE_NO_WINDOW,			  // CREATE_NEW_CONSOLE,//
-							NULL,						  // env,
-							L"C:\\dev_node\\trilium_dev", // ← рабочая папка
-							&si, &nodeProcess);
+							false,			  //(cfg.logs.node == LogMode::FILE_MODE)
+							CREATE_NO_WINDOW, // CREATE_NEW_CONSOLE,//
+							NULL,			  // env,
+							// L"C:\\dev_node\\trilium_dev", // ← рабочая папка
+							cfg.node.working_dir.data(), &si, &nodeProcess);
 	}
 
 	if (!ok) {

@@ -1,23 +1,7 @@
 #include "../include/env_check.hpp"
-// #include <WebView2.h>
-// #include <cwchar>
-// #include <wrl/client.h>
-
-// #pragma comment(lib, "ole32.lib")
-// typedef HRESULT(WINAPI *PFN_CoInitializeEx)(LPVOID, DWORD);
-// typedef void(WINAPI *PFN_CoUninitialize)(void);
-// typedef LPVOID(WINAPI *PFN_CoTaskMemAlloc)(SIZE_T);
-// typedef LPVOID(WINAPI *PFN_CoTaskMemFree)(LPVOID);
-
-// extern PFN_CoInitializeEx pCoInitializeEx;
-// extern PFN_CoUninitialize pCoUninitialize;
-// extern PFN_CoTaskMemAlloc pCoTaskMemAlloc;
-// extern PFN_CoTaskMemFree pCoTaskMemFree;
 
 extern void LogLauncherInfo(const wchar_t *msg);
 extern void LogLauncherError(const wchar_t *msg);
-
-// namespace fs = std::filesystem;
 
 static std::wstring Utf8ToWide(const std::string &str) {
 	if (str.empty()) return L"";
@@ -35,118 +19,60 @@ bool ProbeNodeVersionCreateProcess(ProbeStatus &out_result) {
 	SECURITY_ATTRIBUTES sa{};
 	sa.nLength = sizeof(sa);
 	sa.bInheritHandle = TRUE;
-
 	HANDLE read_pipe = NULL;
 	HANDLE write_pipe = NULL;
-
 	if (!CreatePipe(&read_pipe, &write_pipe, &sa, 0)) {
 		out_result.ok = false;
 		out_result.diagnostic_message = L"CreatePipe failed";
-
 		return false;
 	}
 
 	SetHandleInformation(read_pipe, HANDLE_FLAG_INHERIT, 0);
-
 	STARTUPINFOW si{};
 	si.cb = sizeof(si);
-
 	si.dwFlags = STARTF_USESTDHANDLES;
-
 	si.hStdOutput = write_pipe;
 	si.hStdError = write_pipe;
-
 	PROCESS_INFORMATION pi{};
-
 	wchar_t cmd[] = L"node.exe --version";
-
 	BOOL ok = CreateProcessW(NULL, cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
-
 	CloseHandle(write_pipe);
-
 	if (!ok) {
 		DWORD err = GetLastError();
-
 		out_result.ok = false;
-
 		out_result.diagnostic_message = L"CreateProcessW failed";
-
 		wchar_t errbuf[64];
-
 		swprintf_s(errbuf, L"GetLastError=%lu", err);
-
 		out_result.detected_value = errbuf;
-
 		CloseHandle(read_pipe);
-
 		return false;
 	}
-
 	std::string output;
-
 	char buffer[256];
-
 	DWORD readed = 0;
-
 	while (ReadFile(read_pipe, buffer, sizeof(buffer) - 1, &readed, NULL) && readed > 0) {
 		buffer[readed] = 0;
-
 		output += buffer;
 	}
-
 	WaitForSingleObject(pi.hProcess, INFINITE);
-
 	DWORD exit_code = 0;
-
 	GetExitCodeProcess(pi.hProcess, &exit_code);
-
 	CloseHandle(pi.hThread);
 	CloseHandle(pi.hProcess);
-
 	CloseHandle(read_pipe);
-
 	std::wstring woutput = Utf8ToWide(output);
-
 	while (!woutput.empty() && (woutput.back() == L'\n' || woutput.back() == L'\r')) { woutput.pop_back(); }
-
 	out_result.detected_value = woutput;
-
 	if (exit_code == 0) {
 		out_result.ok = true;
-
 		out_result.diagnostic_message = L"node process executed";
-
 		return true;
 	}
-
 	out_result.ok = false;
-
 	out_result.diagnostic_message = L"node process returned error";
-
 	return false;
 }
 
-// bool ProbeWebView2Version(ProbeStatus &out_result) {
-// 	HRESULT hr = pCoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-// 	LPWSTR version = nullptr;
-// 	// hr = GetAvailableCoreWebView2BrowserVersionString(nullptr, &version);
-// 	if (SUCCEEDED(hr) && version) {
-// 		out_result.ok = true;
-// 		out_result.detected_value = version;
-// 		out_result.diagnostic_message = L"WebView2 runtime detected";
-// 		// CoTaskMemFree(version);
-// 		pCoTaskMemFree(version);
-// 		pCoUninitialize();
-// 		return true;
-// 	}
-// 	out_result.ok = false;
-// 	out_result.diagnostic_message = L"WebView2 runtime not found";
-// 	pCoUninitialize();
-// 	return false;
-// }
-
-// AA_WebViewHealthCheck - изолированная разведка рантайма
-// bool AA_WebViewHealthCheck(ProbeStatus &out_result) {
 bool ProbeWebView2Version(ProbeStatus &out_result) {
 	// Локальная загрузка для автономности чекера
 	HMODULE hCom = LoadLibraryW(L"combase.dll");
@@ -193,44 +119,25 @@ bool ProbeDiskSpace(const std::wstring &path, DiskProbeResult &out_result) {
 	ULARGE_INTEGER free_bytes_available{};
 	ULARGE_INTEGER total_number_of_bytes{};
 	ULARGE_INTEGER total_number_of_free_bytes{};
-
 	BOOL ok = GetDiskFreeSpaceExW(path.c_str(), &free_bytes_available, &total_number_of_bytes, &total_number_of_free_bytes);
-
 	if (!ok) return false;
-
 	out_result.free_bytes = total_number_of_free_bytes.QuadPart;
-
 	out_result.total_bytes = total_number_of_bytes.QuadPart;
-
 	return true;
 }
 
 bool ProbeRequiredDlls(const std::wstring &dir, std::vector<DllProbeResult> &out_result) {
 	static const wchar_t *required_dlls[] = {L"libwinpthread-1.dll", L"libgcc_s_seh-1.dll", L"libstdc++-6.dll", L"WebView2Loader.dll"};
-
 	bool all_ok = true;
-
 	for (const auto *dll : required_dlls) {
 		DllProbeResult item;
-
 		item.dll_name = dll;
-
-		// fs::path full_path =
-		//     fs::path(dir) / dll;
-
-		// item.exists = fs::exists(full_path);
-
 		std::wstring full_path = dir + L"\\" + dll;
-
 		DWORD attrs = GetFileAttributesW(full_path.c_str());
-
 		item.exists = (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
-
 		if (!item.exists) all_ok = false;
-
 		out_result.push_back(item);
 	}
-
 	return all_ok;
 }
 
@@ -243,14 +150,12 @@ void RunEnvironmentProbe(ProbeResult &result) {
 
 	ProbeRequiredDlls(L".", result.dlls);
 }
-
 void PrintProbeResult(const ProbeResult &result) {
 	LogLauncherInfo(L"=== ENV PROBE BEGIN ===");
 	{
 		std::wstring msg = L"probe.node"
 						   L" ok=" +
 						   std::wstring(result.node.ok ? L"true" : L"false") + L" value=\"" + result.node.detected_value + L"\" diagnostic=\"" + result.node.diagnostic_message + L"\"";
-
 		if (result.node.ok)
 			LogLauncherInfo(msg.c_str());
 		else
